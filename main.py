@@ -1,8 +1,14 @@
 from fastapi import FastAPI, Request
 from email_pydantic import Email
 from claude import call_claude
+import requests
+import httpx
+import os
+from dotenv import load_dotenv
 
 app = FastAPI()
+
+slack_url = os.environ.get("SLACK_URL")
 
 @app.get("/health")
 def health():

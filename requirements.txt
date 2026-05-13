@@ -4,3 +4,5 @@ python-dotenv
 pydantic
 anthropic
 python-dotenv
+requests
+httpx

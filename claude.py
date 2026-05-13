@@ -16,7 +16,9 @@ async def call_claude(email):
                     messages=[
                         {
                             "role": "user",
-                            "content": f"Summarise this email for me in less than a paragraph. Include all the necessary details.{email}",
+                            "content": f"Summarise this email for me in less than a paragraph. \
+                            Include all the necessary details. Make sure the email has only the relevant \
+                            summary and no unecessary annotations or keywords. {email}",
                         }
                     ],
                 )
