@@ -17,10 +17,26 @@ def health():
 
 @app.post("/webhook")
 async def webhook(request: Request):
-    body = await request.json()
-    email = Email(TextBody=body["TextBody"], From=body["From"], Subject=body["Subject"])
-    ai_response = await call_claude(email.TextBody)
-    print(f"AI Response: {ai_response.content[0].text}")
-    async with httpx.AsyncClient() as client:
-        await client.post(slack_url, json={"text": ai_response.content[0].text})
-    return {"received" : True}
+    try:
+        body = await request.json()
+        email = Email(TextBody=body["TextBody"], From=body["From"], Subject=body["Subject"])
+    except Exception as e:
+        print(f"Failed to parse email: {e}")
+        return {"error": "Invalid email payload"}, 400
+    
+    try:
+        ai_response = await call_claude(email.TextBody)
+        summary = ai_response.content[0].text
+    except Exception as e:
+        print(f"Claude API failed: {e}")
+        summary = f"Could not summarize. Original from {email.From}: {email.Subject}"
+
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post(slack_url, json={"text": summary})
+    except Exception as e:
+        print(f"Slack delivery failed: {e}")
+        return {"error": "Slack delivery failed"}, 500 
+
+    return {"received": True}
+    
